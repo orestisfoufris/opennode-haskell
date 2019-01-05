@@ -1,0 +1,4 @@
+.stack-work/
+opennode-haskell.*
+*.cabal
+*.idea
