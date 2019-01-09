@@ -3,19 +3,19 @@
 module Data where
 
 data WithdrawalsReq a = WithdrawalsReq
-  { wtype :: WithdrawalType
-  , amount :: a
+  { wtype   :: WithdrawalType
+  , amount  :: a
   , address :: String
   } deriving (Show, Eq)
 
 data WithdrawalsResp a = WithdrawalsResp
-  { id :: String
-  , wtype :: WithdrawalType
-  , amount :: a
-  , reference :: String
+  { id          :: String
+  , wtype       :: WithdrawalType
+  , amount      :: a
+  , reference   :: String
   , processedAt :: String
-  , address :: String
-  , fee :: a
+  , address     :: String
+  , fee         :: a
   } deriving (Show, Eq)
 
 data WithdrawalType
@@ -24,5 +24,5 @@ data WithdrawalType
   deriving (Eq)
 
 instance Show WithdrawalType where
-  show LN = "ln"
+  show LN    = "ln"
   show CHAIN = "chain"
