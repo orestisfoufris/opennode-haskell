@@ -26,14 +26,14 @@ data Resp = Resp
 main :: IO ()
 main =
    do
-    r <- getWithdrawal "dev-api.opennode.co" "/v1/withdrawal/" "123" "1fbcdbb7-ad6d-4487-ba07-974542fdb497"
+    r <- getWithdrawal "dev-api.opennode.co" "/v1/withdrawal/" "123" "c4fb8b63-bf77-4116-aad3-9195b5d11c9f"
     print (responseBody r :: Value)
 
-getWithdrawal :: (MonadHttp m, FromJSON a) => T.Text -> String -> String -> B.ByteString -> m (JsonResponse a)
+getWithdrawal :: (MonadHttp m, FromJSON a) => T.Text -> T.Text -> T.Text -> B.ByteString -> m (JsonResponse a)
 getWithdrawal baseUrl path withId token =
   req
     GET
-    (https baseUrl /: T.pack ((++) path withId))
+    (https baseUrl /: (<>) path withId)
     NoReqBody
     jsonResponse
     (header "Authorization" token <> header "Accept" "application/json")
