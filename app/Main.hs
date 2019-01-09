@@ -29,6 +29,7 @@ main =
     r <- getWithdrawal "dev-api.opennode.co" "/v1/withdrawal/" "123" "1fbcdbb7-ad6d-4487-ba07-974542fdb497"
     print (responseBody r :: Value)
 
+getWithdrawal :: (MonadHttp m, FromJSON a) => T.Text -> String -> String -> B.ByteString -> m (JsonResponse a)
 getWithdrawal baseUrl path withId token =
   req
     GET
