@@ -27,6 +27,8 @@ dependencies:
 - containers
 - aeson
 - transformers
+- data-default-class
+- optparse-applicative
 
 library:
   source-dirs: src

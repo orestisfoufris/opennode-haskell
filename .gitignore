@@ -2,3 +2,12 @@
 opennode-haskell.*
 *.cabal
 *.idea
+
+# OS X
+.DS_Store
+
+# Editors
+*.swp
+*~
+.idea/
+.vscode

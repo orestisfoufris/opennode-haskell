@@ -1,39 +1,19 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
-import           Control.Exception      (throwIO)
-import           Control.Monad
-import           Control.Monad.IO.Class
-import           Data.Aeson
-import qualified Data.ByteString.Char8  as B
-import           Data.Maybe             (fromJust)
-import           Data.Monoid            ((<>))
-import qualified Data.Text              as T
-import           GHC.Generics
+import           Control.Monad.IO.Class         ( liftIO )
+import           Data.Default.Class             ( def )
 import           Network.HTTP.Req
 
-instance MonadHttp IO where
-  handleHttpException = throwIO
+import           OpenNode.Api
+import           OpenNode.Config
 
-data Resp = Resp
-  { success :: String
-  , message :: String
-  } deriving (Show, Generic, ToJSON, FromJSON)
+-- TODO :: use UUID library for UUID's
 
 main :: IO ()
-main =
-   do
-    r <- getWithdrawal "dev-api.opennode.co" "/v1/withdrawal/" "123" "c4fb8b63-bf77-4116-aad3-9195b5d11c9f"
-    print (responseBody r :: Value)
-
-getWithdrawal :: (MonadHttp m, FromJSON a) => T.Text -> T.Text -> T.Text -> B.ByteString -> m (JsonResponse a)
-getWithdrawal baseUrl path withId token =
-  req
-    GET
-    (https baseUrl /: (<>) path withId)
-    NoReqBody
-    jsonResponse
-    (header "Authorization" token <> header "Accept" "application/json")
+main = runReq def $ do
+  r <- withdrawal prodConfig "9741f448-500b-431f-91ac-b40028dd5e5b"
+  liftIO $ print r
+  ws <- withdrawals prodConfig
+  liftIO $ print ws
