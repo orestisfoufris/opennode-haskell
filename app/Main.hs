@@ -2,8 +2,8 @@
 
 module Main where
 
-import           Control.Monad.IO.Class         ( liftIO )
-import           Data.Default.Class             ( def )
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Default.Class     (def)
 import           Network.HTTP.Req
 
 import           OpenNode.Api
