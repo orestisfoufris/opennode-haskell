@@ -5,6 +5,8 @@ module OpenNode.Data
   ( ResponseData (..)
   , WithdrawalType (..)
   , Withdrawal (..)
+  , Currencies (..)
+  , Rate (..)
   )
 where
 
@@ -14,7 +16,7 @@ import           GHC.Generics
 
 aesonOptions = defaultOptions { constructorTagModifier = map toLower }
 
-newtype ResponseData a = ResponseData {responseData :: a} deriving (Show, Eq)
+newtype ResponseData a = ResponseData { responseData :: a } deriving (Show, Eq)
 
 data WithdrawalType = Chain | Ln | Exchange | Wire deriving (Show, Eq, Generic)
 
@@ -69,3 +71,6 @@ instance ToJSON Withdrawal where
     , "fee" .= fe
     , "fiat_value" .= fi
     ]
+
+data Currencies = BTC | GBP | BRL | AUD | CAD | DAI | USD | MXN | EUR | VEF deriving (Show, Eq, Generic)
+data Rate = BTCGBP | BTCBRL | BTCAUD | BTCCAD | BTCDAI | BTCUSD | BTCMXN | BTCEUR | BTCVEF deriving (Show, Eq, Generic)

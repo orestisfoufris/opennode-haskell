@@ -3,6 +3,7 @@
 module OpenNode.Api
   ( withdrawal
   , withdrawals
+  , exchangeRates
   )
 where
 
@@ -12,6 +13,7 @@ import           Data.Text                      ( Text )
 import           Network.HTTP.Req
 import           OpenNode.Data
 import           OpenNode.Config
+import           Data.Aeson                     (Object)
 
 withdrawal :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
 withdrawal cfg uuid = responseBody <$> req
@@ -36,3 +38,14 @@ withdrawals cfg = responseBody <$> req
   path    = "/v1/withdrawals"
   baseUrl = configUrl cfg
   token   = configToken cfg
+
+exchangeRates :: (MonadHttp m) => Config -> m Object
+exchangeRates cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Accept" "application/json")
+ where
+  path    = "/v1/rates"
+  baseUrl = configUrl cfg
