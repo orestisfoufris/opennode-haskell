@@ -7,8 +7,8 @@ module OpenNode.Config
   )
 where
 
-import Data.ByteString.Char8
-import Data.Text
+import           Data.ByteString.Char8
+import           Data.Text
 
 data Config = Config
     { configToken :: !ByteString

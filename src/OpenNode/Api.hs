@@ -4,16 +4,17 @@ module OpenNode.Api
   ( withdrawal
   , withdrawals
   , exchangeRates
+  , charges
   )
 where
 
-import           Data.Default.Class             ( def )
-import           Data.Monoid                    ( (<>) )
-import           Data.Text                      ( Text )
+import           Data.Aeson         (Object)
+import           Data.Default.Class (def)
+import           Data.Monoid        ((<>))
+import           Data.Text          (Text)
 import           Network.HTTP.Req
-import           OpenNode.Data
 import           OpenNode.Config
-import           Data.Aeson                     (Object)
+import           OpenNode.Data
 
 withdrawal :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
 withdrawal cfg uuid = responseBody <$> req
@@ -49,3 +50,15 @@ exchangeRates cfg = responseBody <$> req
  where
   path    = "/v1/rates"
   baseUrl = configUrl cfg
+
+charges :: (MonadHttp m) => Config -> m (ResponseData [Charge])
+charges cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v1/charges"
+    baseUrl = configUrl cfg
+    token = configToken cfg

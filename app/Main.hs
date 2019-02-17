@@ -8,7 +8,7 @@ import           Network.HTTP.Req
 
 import           OpenNode.Api
 import           OpenNode.Config
-import           Data.Aeson (Object)
+
 -- TODO :: use UUID library for UUID's
 
 main :: IO ()
@@ -18,4 +18,6 @@ main = runReq def $ do
   ws <- withdrawals prodConfig
   liftIO $ print ws
   currencies <- exchangeRates prodConfig
-  liftIO $ print (currencies :: Object)
+  liftIO $ print currencies
+  charges <- charges prodConfig
+  liftIO $ print charges
