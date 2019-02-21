@@ -8,6 +8,7 @@ A Haskell client for the opennode API (https://www.opennode.co/). You would need
 - Fetch all pending and confirmed withdrawals (`/v1/withdrawals`)
 - Fetch information about a specific withdrawal (`/v1/withdrawal/{id}`)
 - Fetch all paid and processing charges (`/v1/charges`)
+- Fetch information about a specific charge (`/v1/charge/{id}`)
 
 II. Build
 ----------
