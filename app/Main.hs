@@ -13,7 +13,7 @@ import           OpenNode.Config
 
 main :: IO ()
 main = runReq def $ do
-  r <- withdrawal prodConfig "9741f448-500b-431f-91ac-b40028dd5e5b"
+  r <- withdrawal prodConfig ""
   liftIO $ print r
   ws <- withdrawals prodConfig
   liftIO $ print ws
@@ -21,3 +21,5 @@ main = runReq def $ do
   liftIO $ print currencies
   charges <- charges prodConfig
   liftIO $ print charges
+  ch <- charge prodConfig ""
+  liftIO $ print ch

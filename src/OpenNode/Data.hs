@@ -77,13 +77,13 @@ instance ToJSON Withdrawal where
 
 data Charge =
   Charge { id       :: String
-  , name            :: String
+  , name            :: Maybe String
   , description     :: String
   , amount          :: Integer
   , status          :: ChargeState
   , createdAt       :: Integer
-  , fee             :: Integer
-  , fiatValue       :: Integer
+  , fee             :: Maybe Integer
+  , fiatValue       :: Double
   , notes           :: String
   , autoSettle      :: Bool
   , chainInvoice    :: Maybe ChainInvoice
@@ -94,12 +94,12 @@ instance FromJSON Charge where
   parseJSON = withObject "Charge" $ \v ->
     Charge
       <$> v .:  "id"
-      <*> v .:  "name"
+      <*> v .:?  "name"
       <*> v .:  "description"
       <*> v .:  "amount"
       <*> v .:  "status"
       <*> v .:  "created_at"
-      <*> v .:  "fee"
+      <*> v .:?  "fee"
       <*> v .:  "fiat_value"
       <*> v .:  "notes"
       <*> v .:  "auto_settle"
