@@ -1,16 +1,20 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedStrings     #-}
 
 module OpenNode.Data
   ( ResponseData (..)
   , WithdrawalType (..)
   , Withdrawal (..)
   , Charge (..)
+  , ChargeRequest (..)
+  , ChargeResponse (..)
   )
 where
 
 import           Data.Aeson
 import           Data.Char
+import           Data.Maybe
 import           GHC.Generics
 
 aesonOptions :: Options
@@ -122,7 +126,7 @@ instance ToJSON Charge where
     , "lighting_invoice" .= li
     ]
 
-data ChargeState = Paid | Processing deriving (Eq, Show, Generic)
+data ChargeState = Paid | Processing | Unpaid deriving (Eq, Show, Generic)
 
 instance ToJSON ChargeState where
   toJSON     = genericToJSON aesonOptions
@@ -134,7 +138,7 @@ instance FromJSON ChargeState where
 data ChainInvoice =
   ChainInvoice { address :: String
   , settledAt            :: Maybe Integer
-  , tx                   :: String
+  , tx                   :: Maybe String
 } deriving (Show, Eq, Generic)
 
 instance FromJSON ChainInvoice where
@@ -142,7 +146,7 @@ instance FromJSON ChainInvoice where
     ChainInvoice
       <$> v .:  "address"
       <*> v .:?  "settled_at"
-      <*> v .:  "tx"
+      <*> v .:?  "tx"
 
 instance ToJSON ChainInvoice where
   toJSON (ChainInvoice ad se t) = object
@@ -162,3 +166,90 @@ instance FromJSON LightingInvoice where
 instance ToJSON LightingInvoice where
   toJSON (LightingInvoice se pr) = object
     [ "settled_at" .= se , "payreq" .= pr ]
+
+-- /createCharge
+
+data ChargeRequest =
+  ChargeRequest { description :: String
+ , amount                     :: Double
+ , currency                   :: String
+ , orderId                    :: Maybe String
+ , customerEmail              :: String
+ , customerName               :: Maybe String
+ , callbackUrl                :: Maybe String
+ , successUrl                 :: Maybe String
+ , autoSettle                 :: Maybe Bool
+} deriving (Show, Eq, Generic)
+
+instance ToJSON ChargeRequest where
+  toJSON (ChargeRequest de am cur oid ce cn cu su as ) = object
+    [ "description" .= de
+    , "amount" .= am
+    , "currency" .= cur
+    , "order_id" .= oid
+    , "customer_email" .= ce
+    , "customer_name" .= cn
+    , "callback_url" .= cu
+    , "success_url" .= su
+    , "auto_settle" .= as
+    ]
+
+data ChargeResponse =
+  ChargeResponse {  id :: String
+  , name               :: Maybe String
+  , description        :: String
+  , amount             :: Maybe Integer
+  , status             :: Maybe ChargeState
+  , createdAt          :: Maybe Integer
+  , fiatValue          :: Maybe Double
+  , notes              :: Maybe String
+  , callbackUrl        :: Maybe String
+  , successUrl         :: Maybe String
+  , orderId            :: Maybe String
+  , currency           :: Maybe String
+  , sourceFiatValue    :: Maybe Double
+  , autoSettle         :: Maybe Bool
+  , chainInvoice       :: Maybe ChainInvoice
+  , lightingInvoice    :: Maybe LightingInvoice
+ } deriving (Show, Eq, Generic)
+
+
+instance ToJSON ChargeResponse where
+  toJSON (ChargeResponse ide na de am st ca fv no cu su oid cur sfv as ci li) = object
+    [ "id" .= ide
+    , "name" .= na
+    , "description" .= de
+    , "amount" .= am
+    , "status" .= st
+    , "created_at" .= ca
+    , "fiat_value" .= fv
+    , "notes" .= no
+    , "callback_url" .= cu
+    , "success_url" .= su
+    , "order_id" .= oid
+    , "currency" .= cur
+    , "source_fiat_value" .= sfv
+    , "auto_settle" .= as
+    , "chain_invoice" .= ci
+    , "lighting_invoice" .= li
+    ]
+
+instance FromJSON ChargeResponse where
+  parseJSON = withObject "ChargeResponse" $ \v ->
+    ChargeResponse
+          <$> v .:  "id"
+          <*> v .:?  "name"
+          <*> v .: "description"
+          <*> v .:?  "amount"
+          <*> v .:?  "status"
+          <*> v .:?  "created_at"
+          <*> v .:?  "fiat_value"
+          <*> v .:?  "notes"
+          <*> v .:?  "callback_url"
+          <*> v .:?  "success_url"
+          <*> v .:?  "order_id"
+          <*> v .:?  "currency"
+          <*> v .:?  "source_fiat_value"
+          <*> v .:?  "auto_settle"
+          <*> v .:?  "chain_invoice"
+          <*> v .:?  "lighting_invoice"

@@ -6,6 +6,7 @@ module OpenNode.Api
   , exchangeRates
   , charges
   , charge
+  , createCharge
   )
 where
 
@@ -18,9 +19,9 @@ import           OpenNode.Config
 import           OpenNode.Data
 
 withdrawal :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
-withdrawal cfg id = responseBody <$> req
+withdrawal cfg wid = responseBody <$> req
   GET
-  (https baseUrl /: path /: id)
+  (https baseUrl /: path /: wid)
   NoReqBody
   jsonResponse
   (header "Authorization" token <> header "Accept" "application/json")
@@ -65,13 +66,25 @@ charges cfg = responseBody <$> req
     token = configToken cfg
 
 charge :: (MonadHttp m) => Config -> Text -> m (ResponseData Charge)
-charge cfg id = responseBody <$> req
+charge cfg cid = responseBody <$> req
   GET
-  (https baseUrl /: path /: id)
+  (https baseUrl /: path /: cid)
   NoReqBody
   jsonResponse
   (header "Authorization" token <> header "Accept" "application/json")
   where
     path = "/v1/charge/"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+createCharge :: (MonadHttp m) => Config -> ChargeRequest -> m (ResponseData ChargeResponse)
+createCharge cfg creq = responseBody <$> req
+  POST
+  (https baseUrl /: path)
+  (ReqBodyJson creq)
+  jsonResponse
+  (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v1/charges"
     baseUrl = configUrl cfg
     token = configToken cfg
