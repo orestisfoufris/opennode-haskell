@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds #-}
 
 module Main where
 
@@ -14,8 +15,7 @@ import qualified Options.Applicative    as O
 -- TODO :: use UUID library for UUID's
 
 main :: IO ()
-main =
-  run =<< O.execParser parser
+main = run =<< O.execParser parser
   where
     parser = O.info (O.helper <*> opts)
       (  O.fullDesc
@@ -36,31 +36,18 @@ main =
         )
 
 run :: Config -> IO ()
-run config = do
+run config =
   runReq def $ do
-    liftIO $ print config
-    r <- withdrawal config ""
+    r <- accountBalance config
     liftIO $ print r
-  -- ws <- withdrawals devConfig
-  -- liftIO $ print ws
-  -- currencies <- exchangeRates prodConfig
-  -- liftIO $ print currencies
-  -- charges <- charges prodConfig
-  -- liftIO $ print charges
-  -- ch <- charge prodConfig ""
-  -- liftIO $ print ch
-  --  do
-  --   cc <- createCharge devConfig chargeReq
-  --   liftIO $ print cc
-  -- where
-  --   chargeReq =
-  --     ChargeRequest
-  --       "some description"
-  --       0.01
-  --       "GBP"
-  --       Nothing
-  --       "testemail@test.com"
-  --       Nothing
-  --       Nothing
-  --       Nothing
-  --       (Just False)
+    -- r <- exchangeRates config
+    -- liftIO $ print r
+    -- r <- supportedCurrencies config
+    -- liftIO $ print r
+    -- let cr = ChargeRequest "" 10.0 "EUR" Nothing "this@this.com" Nothing Nothing Nothing Nothing
+    -- r <- createCharge config cr
+    -- liftIO $ print r
+    -- let faucet = "2NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE"
+    -- let wr = WithdrawalRequest Chain 10000 faucet ""
+    -- r <- createWithdrawal config wr
+    -- liftIO $ print r

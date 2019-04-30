@@ -30,6 +30,7 @@ dependencies:
 - data-default-class
 - optparse-applicative
 - split
+- scientific
 
 library:
   source-dirs: src

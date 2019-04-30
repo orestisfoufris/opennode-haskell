@@ -7,6 +7,9 @@ module OpenNode.Api
   , charges
   , charge
   , createCharge
+  , accountBalance
+  , supportedCurrencies
+  , createWithdrawal
   )
 where
 
@@ -42,17 +45,6 @@ withdrawals cfg = responseBody <$> req
   baseUrl = configUrl cfg
   token   = configToken cfg
 
-exchangeRates :: (MonadHttp m) => Config -> m Object
-exchangeRates cfg = responseBody <$> req
-  GET
-  (https baseUrl /: path)
-  NoReqBody
-  jsonResponse
-  (header "Accept" "application/json")
- where
-  path    = "/v1/rates"
-  baseUrl = configUrl cfg
-
 charges :: (MonadHttp m) => Config -> m (ResponseData [Charge])
 charges cfg = responseBody <$> req
   GET
@@ -77,7 +69,8 @@ charge cfg cid = responseBody <$> req
     baseUrl = configUrl cfg
     token = configToken cfg
 
-createCharge :: (MonadHttp m) => Config -> ChargeRequest -> m (ResponseData ChargeResponse)
+createCharge :: (MonadHttp m) => Config -> ChargeRequest
+             -> m (ResponseData ChargeResponse)
 createCharge cfg creq = responseBody <$> req
   POST
   (https baseUrl /: path)
@@ -86,5 +79,56 @@ createCharge cfg creq = responseBody <$> req
   (header "Authorization" token <> header "Accept" "application/json")
   where
     path = "/v1/charges"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+accountBalance :: (MonadHttp m) => Config -> m (ResponseData Balance)
+accountBalance cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v1/account/balance"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+exchangeRates :: (MonadHttp m) => Config -> m (ResponseData Rates)
+exchangeRates cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v1/rates"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+supportedCurrencies :: (MonadHttp m) => Config -> m (ResponseData [Text])
+supportedCurrencies cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v1/currencies"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+createWithdrawal :: (MonadHttp m) => Config -> WithdrawalRequest
+                 -> m (ResponseData WithdrawalResponse)
+createWithdrawal cfg wreq =
+  responseBody <$>
+  req
+    POST
+    (https baseUrl /: path)
+    (ReqBodyJson wreq)
+    jsonResponse
+    (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v2/withdrawals"
     baseUrl = configUrl cfg
     token = configToken cfg

@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE DeriveAnyClass        #-}
 
 module OpenNode.Data
   ( ResponseData (..)
@@ -9,13 +10,22 @@ module OpenNode.Data
   , Charge (..)
   , ChargeRequest (..)
   , ChargeResponse (..)
+  , Balance (..)
+  , Rate (..)
+  , Rates (..)
+  , WithdrawalRequest (..)
+  , WithdrawalResponse (..)
   )
 where
 
 import           Data.Aeson
 import           Data.Char
+import qualified Data.Map        as M
 import           Data.Maybe
+import           Data.Scientific
+import           Data.Text       (Text)
 import           GHC.Generics
+
 
 aesonOptions :: Options
 aesonOptions = defaultOptions { constructorTagModifier = map toLower }
@@ -169,6 +179,8 @@ instance ToJSON LightingInvoice where
 
 -- /createCharge
 
+-- / TODO: DO NOT USE DOUBLE. Move that at least to Scientific
+-- / For what the docs say currency seems optional
 data ChargeRequest =
   ChargeRequest { description :: String
  , amount                     :: Double
@@ -194,6 +206,18 @@ instance ToJSON ChargeRequest where
     , "auto_settle" .= as
     ]
 
+data WithdrawalRequest = WithdrawalRequest
+  { wrType         :: WithdrawalType
+  , wrAmount       :: Integer
+  , wrAddress      :: String
+  , wrCallback_url :: String
+  } deriving (Show, Eq, Generic)
+
+instance ToJSON WithdrawalRequest where
+  toJSON (WithdrawalRequest ty am ad ca) =
+    object
+      ["type" .= ty, "amount" .= am, "address" .= ad, "callback_url" .= ca]
+
 data ChargeResponse =
   ChargeResponse {  id :: String
   , name               :: Maybe String
@@ -212,7 +236,6 @@ data ChargeResponse =
   , chainInvoice       :: Maybe ChainInvoice
   , lightingInvoice    :: Maybe LightingInvoice
  } deriving (Show, Eq, Generic)
-
 
 instance ToJSON ChargeResponse where
   toJSON (ChargeResponse ide na de am st ca fv no cu su oid cur sfv as ci li) = object
@@ -253,3 +276,42 @@ instance FromJSON ChargeResponse where
           <*> v .:?  "auto_settle"
           <*> v .:?  "chain_invoice"
           <*> v .:?  "lighting_invoice"
+
+data WithdrawalResponse = WithdrawalResponse
+ {  wsId                 :: String
+  , wsType               :: Maybe WithdrawalType
+  , wsAmount             :: Maybe Integer
+  , wsReference          :: Maybe String
+  , wsProcessedAt        :: Maybe Integer
+  , wsFee                :: Maybe Integer
+  } deriving (Show, Eq, Generic)
+
+instance ToJSON WithdrawalResponse where
+  toJSON (WithdrawalResponse ide ty am re pr fe) = object
+    [ "id" .= ide
+    , "type" .= ty
+    , "amount" .= am
+    , "reference" .= re
+    , "processed_at" .= pr
+    , "fee" .= fe
+    ]
+
+instance FromJSON WithdrawalResponse where
+  parseJSON = withObject "WithdrawalResponse" $ \v ->
+    WithdrawalResponse
+      <$> v .:   "id"
+      <*> v .:?  "type"
+      <*> v .:?  "amount"
+      <*> v .:?  "reference"
+      <*> v .:?  "processed_at"
+      <*> v .:?  "fee"
+
+data Balance = Balance
+  { balance :: M.Map Text Scientific
+  } deriving (Show, Eq, Generic, FromJSON, ToJSON)
+
+data Rate = Rate (M.Map Text Scientific)
+  deriving (Show, Eq, Generic, FromJSON, ToJSON)
+
+data Rates = Rates (M.Map Text Rate)
+  deriving (Show, Eq, Generic, FromJSON, ToJSON)
