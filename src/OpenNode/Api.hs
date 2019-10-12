@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module OpenNode.Api
-  ( withdrawal
+  ( withdrawalInfo
   , withdrawals
   , exchangeRates
   , charges
-  , charge
+  , chargeInfo
   , createCharge
   , accountBalance
   , supportedCurrencies
-  , createWithdrawal
+  , initiateWithdrawal
   )
 where
 
@@ -21,8 +21,8 @@ import           Network.HTTP.Req
 import           OpenNode.Config
 import           OpenNode.Data
 
-withdrawal :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
-withdrawal cfg wid = responseBody <$> req
+withdrawalInfo :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
+withdrawalInfo cfg wid = responseBody <$> req
   GET
   (https baseUrl /: path /: wid)
   NoReqBody
@@ -45,6 +45,21 @@ withdrawals cfg = responseBody <$> req
   baseUrl = configUrl cfg
   token   = configToken cfg
 
+initiateWithdrawal :: (MonadHttp m) => Config -> WithdrawalRequest
+                 -> m (ResponseData WithdrawalResponse)
+initiateWithdrawal cfg wreq =
+  responseBody <$>
+  req
+    POST
+    (https baseUrl /: path)
+    (ReqBodyJson wreq)
+    jsonResponse
+    (header "Authorization" token <> header "Accept" "application/json")
+  where
+    path = "/v2/withdrawals"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
 charges :: (MonadHttp m) => Config -> m (ResponseData [Charge])
 charges cfg = responseBody <$> req
   GET
@@ -57,8 +72,8 @@ charges cfg = responseBody <$> req
     baseUrl = configUrl cfg
     token = configToken cfg
 
-charge :: (MonadHttp m) => Config -> Text -> m (ResponseData Charge)
-charge cfg cid = responseBody <$> req
+chargeInfo:: (MonadHttp m) => Config -> Text -> m (ResponseData Charge)
+chargeInfo cfg cid = responseBody <$> req
   GET
   (https baseUrl /: path /: cid)
   NoReqBody
@@ -115,20 +130,5 @@ supportedCurrencies cfg = responseBody <$> req
   (header "Authorization" token <> header "Accept" "application/json")
   where
     path = "/v1/currencies"
-    baseUrl = configUrl cfg
-    token = configToken cfg
-
-createWithdrawal :: (MonadHttp m) => Config -> WithdrawalRequest
-                 -> m (ResponseData WithdrawalResponse)
-createWithdrawal cfg wreq =
-  responseBody <$>
-  req
-    POST
-    (https baseUrl /: path)
-    (ReqBodyJson wreq)
-    jsonResponse
-    (header "Authorization" token <> header "Accept" "application/json")
-  where
-    path = "/v2/withdrawals"
     baseUrl = configUrl cfg
     token = configToken cfg
