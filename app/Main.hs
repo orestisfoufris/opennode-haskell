@@ -38,7 +38,7 @@ main = run =<< O.execParser parser
 run :: Config -> IO ()
 run config =
   runReq defaultHttpConfig $ do
-    r <- accountBalance config
+    r <- withdrawals config
     liftIO $ print r
     -- r <- exchangeRates config
     -- liftIO $ print r

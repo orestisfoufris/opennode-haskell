@@ -1,7 +1,7 @@
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE DeriveAnyClass        #-}
 
 module OpenNode.Data
   ( ResponseData (..)
@@ -13,6 +13,7 @@ module OpenNode.Data
   , Balance (..)
   , Rate (..)
   , Rates (..)
+  , Refund (..)
   , WithdrawalRequest (..)
   , WithdrawalResponse (..)
   )
@@ -278,12 +279,12 @@ instance FromJSON ChargeResponse where
           <*> v .:?  "lighting_invoice"
 
 data WithdrawalResponse = WithdrawalResponse
- {  wsId                 :: String
-  , wsType               :: Maybe WithdrawalType
-  , wsAmount             :: Maybe Integer
-  , wsReference          :: Maybe String
-  , wsProcessedAt        :: Maybe Integer
-  , wsFee                :: Maybe Integer
+ {  wsId          :: String
+  , wsType        :: Maybe WithdrawalType
+  , wsAmount      :: Maybe Integer
+  , wsReference   :: Maybe String
+  , wsProcessedAt :: Maybe Integer
+  , wsFee         :: Maybe Integer
   } deriving (Show, Eq, Generic)
 
 instance ToJSON WithdrawalResponse where
@@ -306,12 +307,53 @@ instance FromJSON WithdrawalResponse where
       <*> v .:?  "processed_at"
       <*> v .:?  "fee"
 
-data Balance = Balance
+newtype Balance = Balance
   { balance :: M.Map Text Scientific
   } deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
-data Rate = Rate (M.Map Text Scientific)
+newtype Rate = Rate (M.Map Text Scientific)
   deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
-data Rates = Rates (M.Map Text Rate)
+newtype Rates = Rates (M.Map Text Rate)
   deriving (Show, Eq, Generic, FromJSON, ToJSON)
+
+data Refund =
+  Refund { rid  :: String
+  , email       :: String
+  , address     :: String
+  , amount      :: Integer
+  , fee         :: Integer
+  , tx          :: Maybe String
+  , status      :: String
+  , createdAt   :: Integer
+  , processedAt :: Maybe Integer
+  , checkoutId  :: String
+  } deriving (Show, Eq, Generic)
+
+instance FromJSON Refund where
+  parseJSON = withObject "Refund" $ \v ->
+    Refund
+      <$> v .:  "id"
+      <*> v .:  "email"
+      <*> v .:  "address"
+      <*> v .:  "amount"
+      <*> v .:  "fee"
+      <*> v .:? "tx"
+      <*> v .:  "status"
+      <*> v .:  "createAt"
+      <*> v .:? "processedAt"
+      <*> v .:  "checkoutId"
+
+instance ToJSON Refund where
+  toJSON (Refund i em a am f tx st cr pr ch) = object
+    [ "id" .= i
+    , "email" .= em
+    , "address" .= a
+    , "amount" .= am
+    , "fee" .= f
+    , "tx" .= tx
+    , "status" .= st
+    , "created_at" .= cr
+    , "processed_at" .= pr
+    , "checkout_id" .= pr
+    ]

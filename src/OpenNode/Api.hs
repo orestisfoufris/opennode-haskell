@@ -10,6 +10,7 @@ module OpenNode.Api
   , accountBalance
   , supportedCurrencies
   , initiateWithdrawal
+  , listRefunds
   )
 where
 
@@ -27,7 +28,7 @@ withdrawalInfo cfg wid = responseBody <$> req
   (https baseUrl /: path /: wid)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
  where
   path    = "/v1/withdrawal/"
   baseUrl = configUrl cfg
@@ -39,7 +40,7 @@ withdrawals cfg = responseBody <$> req
   (https baseUrl /: path)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token <> header "Content-Type" "application/json")
  where
   path    = "/v1/withdrawals"
   baseUrl = configUrl cfg
@@ -54,7 +55,7 @@ initiateWithdrawal cfg wreq =
     (https baseUrl /: path)
     (ReqBodyJson wreq)
     jsonResponse
-    (header "Authorization" token <> header "Accept" "application/json")
+    (header "Authorization" token)
   where
     path = "/v2/withdrawals"
     baseUrl = configUrl cfg
@@ -66,7 +67,7 @@ charges cfg = responseBody <$> req
   (https baseUrl /: path)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/charges"
     baseUrl = configUrl cfg
@@ -78,7 +79,7 @@ chargeInfo cfg cid = responseBody <$> req
   (https baseUrl /: path /: cid)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/charge/"
     baseUrl = configUrl cfg
@@ -91,7 +92,7 @@ createCharge cfg creq = responseBody <$> req
   (https baseUrl /: path)
   (ReqBodyJson creq)
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/charges"
     baseUrl = configUrl cfg
@@ -103,7 +104,7 @@ accountBalance cfg = responseBody <$> req
   (https baseUrl /: path)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/account/balance"
     baseUrl = configUrl cfg
@@ -115,7 +116,7 @@ exchangeRates cfg = responseBody <$> req
   (https baseUrl /: path)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/rates"
     baseUrl = configUrl cfg
@@ -127,8 +128,20 @@ supportedCurrencies cfg = responseBody <$> req
   (https baseUrl /: path)
   NoReqBody
   jsonResponse
-  (header "Authorization" token <> header "Accept" "application/json")
+  (header "Authorization" token)
   where
     path = "/v1/currencies"
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+listRefunds :: (MonadHttp m) => Config -> m (ResponseData [Refund])
+listRefunds cfg = responseBody <$> req
+  GET
+  (https baseUrl /: path)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token)
+  where
+    path = "/v1/refunds"
     baseUrl = configUrl cfg
     token = configToken cfg
