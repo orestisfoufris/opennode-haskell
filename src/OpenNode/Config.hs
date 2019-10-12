@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 
 module OpenNode.Config
   ( Config (..)
