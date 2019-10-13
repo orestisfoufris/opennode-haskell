@@ -14,6 +14,7 @@ module OpenNode.Data
   , Rate (..)
   , Rates (..)
   , Refund (..)
+  , RefundRequest (..)
   , WithdrawalRequest (..)
   , WithdrawalResponse (..)
   )
@@ -356,4 +357,17 @@ instance ToJSON Refund where
     , "created_at" .= cr
     , "processed_at" .= pr
     , "checkout_id" .= pr
+    ]
+
+data RefundRequest =
+  RefundRequest { checkoutId :: String
+  , address :: String
+  , email :: Maybe String
+  } deriving (Show, Eq, Generic)
+
+instance ToJSON RefundRequest where
+  toJSON (RefundRequest cid a e) = object
+    [ "checkout_id" .= cid
+    , "address" .= a
+    , "email" .= e
     ]

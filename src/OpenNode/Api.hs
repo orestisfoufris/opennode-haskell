@@ -139,3 +139,25 @@ listRefunds cfg = responseBody <$> req
   where
     baseUrl = configUrl cfg
     token = configToken cfg
+
+refundInfo :: (MonadHttp m) => Config -> Text -> m (ResponseData Refund)
+refundInfo cfg rid = responseBody <$> req
+  GET
+  (https baseUrl /: "v1" /: "refund" /: rid)
+  NoReqBody
+  jsonResponse
+  (header "Authorization" token)
+  where
+    baseUrl = configUrl cfg
+    token = configToken cfg
+
+createRefund :: (MonadHttp m) => Config -> RefundRequest -> m (ResponseData Refund)
+createRefund cfg creq = responseBody <$> req
+  POST
+  (https baseUrl /: "v1" /: "refunds")
+  (ReqBodyJson creq)
+  jsonResponse
+  (header "Authorization" token)
+  where
+  baseUrl = configUrl cfg
+  token = configToken cfg
