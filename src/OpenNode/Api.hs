@@ -25,12 +25,11 @@ import           OpenNode.Data
 withdrawalInfo :: (MonadHttp m) => Config -> Text -> m (ResponseData Withdrawal)
 withdrawalInfo cfg wid = responseBody <$> req
   GET
-  (https baseUrl /: path /: wid)
+  (https baseUrl /: "v1" /: "withdrawal" /: wid)
   NoReqBody
   jsonResponse
   (header "Authorization" token)
  where
-  path    = "/v1/withdrawal/"
   baseUrl = configUrl cfg
   token   = configToken cfg
 
